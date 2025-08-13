@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# route-craft-58-backend
-route-craft-58-backend
-=======
 # Route Craft 58 Backend
 
 A FastAPI-based backend for the Route Craft transportation management system, providing comprehensive APIs for managing carriers, lanes, bids, and network analysis.
