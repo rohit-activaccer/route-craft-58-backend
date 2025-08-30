@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.dashboard_dev import router as dashboard_dev_router
 from app.api.bids import router as bids_router
+from app.api.auth import router as auth_router
 # from app.api.load_lane_history import router as load_lane_history_router
 from app.config import settings
 import logging
@@ -29,6 +30,7 @@ app.add_middleware(
 )
 
 # Include API routers
+app.include_router(auth_router, prefix="/api/v1")
 app.include_router(dashboard_dev_router, prefix="/api/v1")
 app.include_router(bids_router, prefix="/api/v1")
 # app.include_router(load_lane_history_router, prefix="/api/v1")

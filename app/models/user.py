@@ -6,9 +6,8 @@ from enum import Enum
 
 class UserRole(str, Enum):
     ADMIN = "admin"
-    MANAGER = "manager"
-    ANALYST = "analyst"
-    VIEWER = "viewer"
+    USER = "user"
+    CARRIER = "carrier"
 
 
 class UserStatus(str, Enum):
@@ -19,12 +18,12 @@ class UserStatus(str, Enum):
 
 class UserBase(BaseModel):
     email: EmailStr
-    first_name: str = Field(..., min_length=1, max_length=50)
-    last_name: str = Field(..., min_length=1, max_length=50)
-    role: UserRole = UserRole.VIEWER
-    company: Optional[str] = Field(None, max_length=100)
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, max_length=100)
+    role: UserRole = UserRole.USER
+    company_name: Optional[str] = Field(None, max_length=255)
     phone: Optional[str] = Field(None, max_length=20)
-    is_active: bool = True
+    status: UserStatus = UserStatus.ACTIVE
 
 
 class UserCreate(UserBase):
@@ -33,29 +32,25 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    first_name: Optional[str] = Field(None, min_length=1, max_length=50)
-    last_name: Optional[str] = Field(None, min_length=1, max_length=50)
+    first_name: Optional[str] = Field(None, max_length=100)
+    last_name: Optional[str] = Field(None, max_length=100)
     role: Optional[UserRole] = None
-    company: Optional[str] = Field(None, max_length=100)
+    company_name: Optional[str] = Field(None, max_length=255)
     phone: Optional[str] = Field(None, max_length=20)
-    is_active: Optional[bool] = None
+    status: Optional[UserStatus] = None
 
 
 class UserInDB(UserBase):
-    id: str
-    hashed_password: str
+    id: int
+    password_hash: str
     created_at: datetime
     updated_at: datetime
-    last_login: Optional[datetime] = None
-    status: UserStatus = UserStatus.ACTIVE
 
 
 class User(UserBase):
-    id: str
+    id: int
     created_at: datetime
     updated_at: datetime
-    last_login: Optional[datetime] = None
-    status: UserStatus = UserStatus.ACTIVE
 
 
 class UserLogin(BaseModel):

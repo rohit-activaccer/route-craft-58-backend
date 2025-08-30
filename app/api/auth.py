@@ -90,14 +90,14 @@ async def login(
         user = User(**user_data)
         
         # Verify password
-        if not verify_password(form_data.password, user_data["hashed_password"]):
+        if not verify_password(form_data.password, user_data["password_hash"]):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect email or password"
             )
         
         # Check if user is active
-        if not user_data.get("is_active", True):
+        if user_data.get("status") != "active":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User account is deactivated"
@@ -110,7 +110,7 @@ async def login(
         
         # Update last login
         db.execute_update(
-            "UPDATE users SET last_login = %s WHERE id = %s",
+            "UPDATE users SET updated_at = %s WHERE id = %s",
             (datetime.utcnow(), user.id)
         )
         
@@ -144,8 +144,17 @@ async def change_password(
 ):
     """Change user password"""
     try:
+        # Get current user data from database
+        users = db.execute_query("SELECT * FROM users WHERE id = %s", (current_user.id,))
+        if not users:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        user_data = users[0]
+        
         # Verify current password
-        if not verify_password(password_data.current_password, current_user.hashed_password):
+        if not verify_password(password_data.current_password, user_data["password_hash"]):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Current password is incorrect"
@@ -163,7 +172,7 @@ async def change_password(
         
         # Update password in database
         db.execute_update(
-            "UPDATE users SET hashed_password = %s, updated_at = %s WHERE id = %s",
+            "UPDATE users SET password_hash = %s, updated_at = %s WHERE id = %s",
             (new_hashed_password, datetime.utcnow(), current_user.id)
         )
         
